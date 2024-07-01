@@ -1,5 +1,7 @@
 import com.cc.Simplex;
 
+import java.util.logging.Logger;
+
 public class Main {
     public static final double M = Double.MAX_VALUE;
     public static void main(String[] args) {
@@ -19,7 +21,7 @@ public class Main {
          *
          *
          * 该市在方案实际运行时发现，植树造林和节能减排的吸收量不少于3（万立方）才能满足市民的需求。
-         * x1>=3 x2>=3
+         * x2+x3>=4
          * 为了提高市民满意度，试问该市政府如何调整各方式吸收量，才能满足市民需求的同时使经济效益最大化？
          * */
 
@@ -30,79 +32,22 @@ public class Main {
          * 2*x1+x2+4*x3+x5=7
          * -x1<=-3
          * -x2<=-3
-         *
-         * -1     -1     -1     1    0        0       0             -5
-         * 2      1       4     0     1       0       0              7
-         * -1      0       0     0     0      1       0              -3
-         * 0      -1       0       0     0      0       1              -3
-         *
          * */
 
 
-//        double[][] tableau = {
-////                {1, 1, 1, -1, 0, 5},
-////                {2, 1, 4, 0, 1, 7},
-////                {2, 1, 3, 0, 0, 0}
-//
-//
-////                {1, 1, 3, 1, 0, 0, 30},
-////                {2, 2, 5, 0, 1,0, 24},
-////                {4, 1, 2, 0, 0, 1,36},
-////                {3,1,2,0,0,0,0}
-//
-////                {1,2,1,0,0,8},
-////                {4,0,0,1,0,16},
-////                {0,4,0,0,1,12},
-////                {2,3,0,0,0,0}
-//
-//                {1, -2, 1, 1, 0, 0,0, 11},
-//                {-4, 1, 2,0, -1, 1,0, 3},
-//                {-2, 0, 1, 0, 0,0, 1,1},
-//                {-3,1,1,0,0,0,0,0}
-//
-////                {1,-2,1,1,0,0,11},
-////                {-4,1,2,0,-1,0,3},
-////                {-2,0,1,0,0,1,1},
-////                {3,-1,-1,0,0,0,0}
-//        };
-//
-//        Simplex simplex = new Simplex(tableau);
-//        simplex.solve();
-//        double[] solution = simplex.getSolution();
-//
-//        System.out.println("Solution: " + Arrays.toString(solution));
 
-
-//        double[][] A = {
-//                {1, -2, 1, 1, 0, 0, 0},
-//                {-4, 1, 2, 0, -1, 1, 0},
-//                {-2, 0, 1, 0, 0, 0, 1}
-//        };
-//        double[] b = {11, 3, 1};
-//        double[] c = {-3, 1, 1, 0, 0, 0, 0};
-//        Simplex2 result = new Simplex2(A,b,c);
-//        result.solve();
-
-//        new DataJFrame();
-
-//        Scanner sc = new Scanner(System.in);
-//        double[][] A = centreMatrix_Creat(sc);
-//        Search_XB(sc);
-//        Init(sc,A);
-//        LocalDateTime startTime = LocalDateTime.now();
-//        LogicLoopJudge(A);
-//        LocalDateTime endTime = LocalDateTime.now();
-//        IterationTime(startTime,endTime);
-
+//        Test1:
 //        double[][] A = {
 //                {1, -2, 1},
 //                {-4, 1, 2},
 //                {-2, 0, 1}
 //        };
 //        double[] b = {11, 3, 1};
-//        double[] c = {-3, 1, 1};
+////        double[] c = {-3, 1, 1};
+//        double[] c = {3, -1, -1};
 //        int[] cla = {1, -1, 0};
 
+//        Test2:
 //        double[][] A = {
 //                {1, 2},
 //                {4, 0},
@@ -112,18 +57,42 @@ public class Main {
 //        double[] c = {-2,-3};
 //        int[] cla = {1,1,1};
 
+//        原问题
+//        double[][] A = {
+//                {2, 1, 4},
+//                {1, 1, 1},
+//        };
+//        double[] b = {7, 5};
+//        double[] c = {-2,-1,-3};
+//        int[] cla = {1,-1};
 
+//      添加约束后直接
         double[][] A = {
                 {2, 1, 4},
                 {1, 1, 1},
+                {0,1,1}
         };
-        double[] b = {7, 5};
+        double[] b = {7, 5,4};
         double[] c = {-2,-1,-3};
-        int[] cla = {1,-1};
+        int[] cla = {1,-1,-1};
 
+        Logger logger = Logger.getLogger("main");
+
+        long start = System.currentTimeMillis();
+        logger.info(start+"");
         Simplex simplex = new Simplex(A, b, c, cla);
-
         simplex.solve();
 
+
+//        对偶
+//        double[] A_new = {0, 1, 1};
+//        double[][] tableau = simplex.addVar(A_new, 4, -1);
+//        double[][] tableau_new = simplex.transferStandard(tableau);
+//        simplex.duiOu(tableau_new);
+
+        long end  = System.currentTimeMillis();
+        logger.info(end+"");
+//        System.out.println("用时:"+(end-start));
+        logger.info("用时:"+(end-start));
     }
 }

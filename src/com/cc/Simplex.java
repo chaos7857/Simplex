@@ -1,6 +1,7 @@
 package com.cc;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class Simplex {
 
@@ -8,12 +9,13 @@ public class Simplex {
     private double[] b;
     private double[] c;
     private int[] cla;
-    private final double M = 9999;
+    private final double M = Double.MAX_VALUE;
 
     private int numConstraints;
     private int numVariables;
-    private double[][] tableau;
+    public double[][] tableau;
     ArrayList<Integer> x;
+    public Logger logger;
     double goal;
     public Simplex(double[][] A, double[] b, double[] c, int[] cla) {
         this.A = A;
@@ -33,12 +35,43 @@ public class Simplex {
             }
         }
 //        x.stream().forEach(e-> System.out.print(e+"  "));
-        System.out.println();
-        System.out.println(numConstraints+" : "+numVariables);
+//        System.out.println();
+//        System.out.println(numConstraints+" : "+numVariables);
 
+        logger = Logger.getLogger(this.getClass().getName());
+        logger.info(numConstraints+" : "+numVariables);
     }
 
     public Simplex() {
+    }
+    
+    // 这个方法是针对这个场景来的，所以对输入都有限制 
+    public double[][] addVar(double[] A, double b, int cla){
+        double[][] tableau_new = new double[tableau.length+1][tableau[0].length+1];
+        for (int i = 0; i < numConstraints; i++) {
+            System.arraycopy(tableau[i], 0, tableau_new[i], 0, tableau[0].length);
+        }
+        System.arraycopy(tableau[tableau.length-1], 0, tableau_new[tableau_new.length-1], 0, tableau[0].length);
+        System.arraycopy(tableau[tableau.length-2], 0, tableau_new[tableau_new.length-2], 0, tableau[0].length);
+        tableau_new[numConstraints][tableau_new[0].length-1] = 1;
+        if (cla == -1){
+            for (int i = 0; i < A.length; i++) {
+                tableau_new[numConstraints][i+2] -= A[i];
+            }
+            tableau_new[numConstraints][1] = -b;
+        } else {
+            System.arraycopy(A, 0, tableau_new[numConstraints], 2, A.length);
+            tableau_new[numConstraints][1] = b;
+        }
+
+        if (cla==0){
+            tableau_new[numConstraints][0] = M;
+            tableau_new[tableau_new.length-1][tableau_new[0].length-1] = M;
+        }
+        x.add(tableau_new[0].length-1);
+
+        showTableau(tableau_new);
+        return tableau_new;
     }
 
     public double[][] initTableau(){// 列初始单纯形表
@@ -143,7 +176,7 @@ public class Simplex {
         }
         return pivotRow;
     }
-    public void pivot(int pivotRow, int pivotColumn) {
+    public void pivot(double[][]tableau, int pivotRow, int pivotColumn) {
         double pivotValue = tableau[pivotRow][pivotColumn];
         for (int j = 1; j < tableau[0].length; j++) {
             tableau[pivotRow][j] /= pivotValue;
@@ -178,21 +211,24 @@ public class Simplex {
                 throw new ArithmeticException("Linear program is unbounded");
             }
 
-            pivot(pivotRow, pivotColumn);
+            pivot(this.tableau,pivotRow, pivotColumn);
             showTableau(tableau);
         }
-
     }
 
     private void showTableau(double[][] tableau) {
         for (int i = 0; i < tableau.length; i++) {
             for (int j = 0; j < tableau[0].length; j++) {
+                if ((i==tableau.length-2||i== tableau.length-1)&&(j==0||j==1)){
+                    System.out.print("----    ");
+                    continue;
+                }
                 if (tableau[i][j]==M){
                     System.out.print("  M    ");
                 }else {
                     System.out.print(tableau[i][j]+"    ");
+//                    System.out.printf("%.2f    ",tableau[i][j]);
                 }
-
             }
             System.out.println();
         }
@@ -203,4 +239,43 @@ public class Simplex {
         System.out.println();
     }
 
+    public double[][] transferStandard(double[][] tableau) {
+        for (int i = 0; i < x.size()-1; i++) {
+            double factor = tableau[tableau.length-3][x.get(i)];
+            for (int j = 1; j < tableau[0].length; j++) {
+                tableau[tableau.length-3][j] -= factor*tableau[i][j];
+            }
+        }
+        showTableau(tableau);
+        return tableau;
+    }
+
+    public void duiOu(double[][] tableau) {
+        while (true) {
+            if (tableau[tableau.length - 3][1] >= 0) {
+                System.out.println("已达到最优解");
+                break;
+            } else {
+                int pivotRow = tableau.length - 3;
+                int pivotCol = -1;
+                double min = M;
+                double sita;
+                for (int i = 2; i < tableau[0].length; i++) {
+                    sita = 0;
+                    if (tableau[pivotRow][i] < 0) {
+                        sita -= tableau[tableau.length - 2][i] / tableau[pivotRow][i];
+                        if (sita < min) {
+                            min = sita;
+                            pivotCol = i;
+                        }
+                    }
+                }
+                if (pivotCol <= 0) {
+                    throw new ArithmeticException("Linear program is unbounded");
+                }
+                pivot(tableau, pivotRow, pivotCol);
+                showTableau(tableau);
+            }
+        }
+    }
 }

@@ -1,10 +1,17 @@
-import com.cc.Simplex;
-
-import java.util.logging.Logger;
+import com.cc.DataJFrame;
 
 public class Main {
     public static final double M = Double.MAX_VALUE;
+
     public static void main(String[] args) {
+        double[][] A = {
+                {2, 1, 4},
+                {1, 1, 1},
+        };// 系数矩阵
+        double[] b = {7, 5};
+        double[] c = {-2, -1, -3};// 价值系数，改为min形式
+        int[] cla = {1, -1};// 约束条件类型，这里规定，-1为大于等于，0为等号，1为小于等于
+        new DataJFrame(A, b, c, cla);
         /*
          * 碳中和一般是指国家、企业、产品、活动或个人在一定时间内直接或间接产生的二氧化碳或温室气体排放总量，通过植树造林、节能减排等形式，
          * 以抵消自身产生的二氧化碳或温室气体排放量，实现正负抵消，达到相对“零排放”。
@@ -20,7 +27,7 @@ public class Main {
          *
          *
          *
-         * 该市在方案实际运行时发现，植树造林和节能减排的吸收量不少于3（万立方）才能满足市民的需求。
+         * 该市在方案实际运行时发现，植树造林和节能减排的吸收量不少于4（万立方）才能满足市民的需求。
          * x2+x3>=4
          * 为了提高市民满意度，试问该市政府如何调整各方式吸收量，才能满足市民需求的同时使经济效益最大化？
          * */
@@ -33,7 +40,6 @@ public class Main {
          * -x1<=-3
          * -x2<=-3
          * */
-
 
 
 //        Test1:
@@ -61,38 +67,39 @@ public class Main {
 //        double[][] A = {
 //                {2, 1, 4},
 //                {1, 1, 1},
-//        };
+//        };// 系数矩阵
 //        double[] b = {7, 5};
-//        double[] c = {-2,-1,-3};
-//        int[] cla = {1,-1};
+//        double[] c = {-2,-1,-3};// 价值系数，改为min形式
+//        int[] cla = {1,-1};// 约束条件类型，这里规定，-1为大于等于，0为等号，1为小于等于
 
 //      添加约束后直接
-        double[][] A = {
-                {2, 1, 4},
-                {1, 1, 1},
-                {0,1,1}
-        };
-        double[] b = {7, 5,4};
-        double[] c = {-2,-1,-3};
-        int[] cla = {1,-1,-1};
+//        double[][] A = {
+//                {2, 1, 4},
+//                {1, 1, 1},
+//                {0,1,1}
+//        };
+//        double[] b = {7, 5,4};
+//        double[] c = {-2,-1,-3};
+//        int[] cla = {1,-1,-1};
 
-        Logger logger = Logger.getLogger("main");
-
-        long start = System.currentTimeMillis();
-        logger.info(start+"");
-        Simplex simplex = new Simplex(A, b, c, cla);
-        simplex.solve();
+//        Logger logger = Logger.getLogger("main");
 
 
-//        对偶
+//        Simplex simplex = new Simplex(A, b, c, cla);
+//
+//        long start = System.currentTimeMillis();
+//        logger.info(start+"");
+//        simplex.solve();
+////        对偶
 //        double[] A_new = {0, 1, 1};
 //        double[][] tableau = simplex.addVar(A_new, 4, -1);
 //        double[][] tableau_new = simplex.transferStandard(tableau);
 //        simplex.duiOu(tableau_new);
+//
+//        long end  = System.currentTimeMillis();
+//        logger.info(end+"");
+////        System.out.println("用时:"+(end-start));
+//        logger.info("用时:"+(end-start));
 
-        long end  = System.currentTimeMillis();
-        logger.info(end+"");
-//        System.out.println("用时:"+(end-start));
-        logger.info("用时:"+(end-start));
     }
 }
